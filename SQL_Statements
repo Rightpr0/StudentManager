@@ -1,0 +1,148 @@
+--建立数据库**************************************************************************
+--如果已经存在了school数据库，就删除
+if exists (select * from sys.databases where name='school')
+drop database school
+--建立数据库文件
+create database school
+on--建立数据库主文件
+(
+	name=school_dat,--数据文件名
+	filename='f:\school.mdf',--存储位置
+	size=10MB--初始大小
+)
+log on--建立数据库日志文件
+(
+	name=school_log,--数据库日志文件名
+	filename='f:\school_log.ldf',--存储位置
+	size=1MB,--初始大小
+	maxsize=20MB--最大容量
+)
+--建表********************************************************************************
+--使用school数据库
+use school
+--如果已经存在就删除
+--if exists (select * from sys.tables where name='student')
+--drop table student
+--建表
+create table student
+(
+	sid char(4) not null primary key,--学号，不能为空(如果标识列应为int identity(种子，增量))
+	sname varchar(10) not null,---姓名
+	ssex char(2) not null,---性别
+	sage int,---年龄
+	sbirthday datetime,---生日
+	stel varchar(20)---电话
+)
+
+----添加约束
+alter table student
+add constraint ck_sex check(ssex in ('男','女'))
+alter table student
+add constraint df_ssex default('男') for ssex
+alter table student
+add constraint ck_age check( sage>16 and sage<99)
+
+
+--建立课程信息表
+use school
+--如果已经存在就删除
+if exists (select * from sys.tables where name='course')
+drop table course
+create table course
+(
+	cid char(3) not null primary key,--课程号，不能为空
+	cname varchar(20),--课程名称
+	ctype varchar(20),--课程类型
+	ccontent varchar(255)--课程内容
+)
+
+
+
+
+--建立成绩信息表
+use school
+--如果已经存在就删除
+if exists (select * from sys.tables where name='grade')
+drop table grade
+create table grade
+(
+	gsid char(4) not null,--学号
+	gcid char(3) not null,--课程代号
+	gmark float,--课程成绩
+	gstate int--学期
+)
+----添加约束
+alter table grade
+add constraint fk_gsid foreign key(gsid) references student(sid)
+alter table grade
+add constraint fk_gcid foreign key(gcid) references course(cid)
+alter table grade 
+add constraint ck_gmark check(gmark>0 and gmark<100)
+alter table grade
+add constraint ck_gstate check(gstate in(1,2))
+
+
+
+--数据添加*************************************************************************
+--向student表中插入数据
+insert into student
+values ('B001','刘月','女',21,1985-03-03,13451)
+insert into student
+values ('B002','李小葱','女',22,1984-03-10,23451)
+insert into student
+values ('B003','刘大伟','男',20,1986-01-01,52345)
+insert into student
+values ('B004','李葱','女',23,1984-03-10,62345)
+insert into student
+values ('B005','李小白','男',24,1982-03-03,23451)
+insert into student
+values ('B006','李导','男',20,1986-01-03,93451)
+insert into student
+values ('B007','王菲菲','女',19,1987-01-03,53451)
+insert into student
+values ('B008','黄小丫','女',21,1985-10-20,88451)
+insert into student
+values ('B009','赵虎','男',22,1984-05-10,67451)
+insert into student
+values ('B010','崔嵬','男',27,1983-05-10,67452)
+--向course表中添加数据
+insert into course
+values ('k01','计算机基础','基础类','介绍计算机的基本操作')
+insert into course
+values ('k02','java基础','java类','介绍java编程语言的基本情况')
+insert into course
+values ('k03','html','网页类','介绍html标记语言')
+insert into course
+values ('k04','jsp','java类','介绍利用java开发页面的技术')
+insert into course
+values ('k05','C#','.NET类','介绍C#编程语言的基本情况')
+insert into course
+values ('k06','SQL编程','数据库类','介绍数据库的基本操作')
+--向grade表中添加数据
+insert into grade
+values ('B003','k01',88.5,1)
+insert into grade
+values ('B003','k02',90.5,1)
+insert into grade
+values ('B003','k03',88.3,1)
+insert into grade
+values ('B003','k04',65.0,1)
+insert into grade
+values ('B004','k03',89.9,2)
+insert into grade
+values ('B004','k04',72.5,2)
+insert into grade
+values ('B002','k02',92.4,2)
+insert into grade
+values ('B001','k01',92.7,1)
+insert into grade
+values ('B001','k04',71.5,1)
+insert into grade
+values ('B005','k02',95.2,2)
+insert into grade
+values ('B005','k03',95.2,2)
+insert into grade
+values ('B000','k04',98.3,1)
+
+
+
